@@ -1,0 +1,30 @@
+# Shared deployment definition. Add a third web service here when the .NET repository is ready.
+services:
+  - type: web
+    name: kom4it-weather-go
+    runtime: docker
+    repo: https://github.com/Kom4It/FastAPI-GO
+    branch: main
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "10000"
+      - key: ALLOWED_ORIGINS
+        value: https://fastapi-web-gamma.vercel.app,https://fastapi-web-marcincombiks-projects.vercel.app
+  - type: web
+    name: kom4it-weather-rust
+    runtime: docker
+    repo: https://github.com/Kom4It/FastAPI-Rust
+    branch: main
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "10000"
+      - key: ALLOWED_ORIGINS
+        value: https://fastapi-web-gamma.vercel.app,https://fastapi-web-marcincombiks-projects.vercel.app
