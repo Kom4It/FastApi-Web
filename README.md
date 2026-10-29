@@ -1,7 +1,7 @@
 # FastAPI-WEB
 
 React + TypeScript + Vite. Pogoda w Krakowie i przełącznik pomiędzy niezależnymi backendami Go i Rust.
-Zmiana backendu anuluje poprzednie żądanie i czyści poprzednie wyniki. Timeout: 15 s.
+Zmiana backendu anuluje poprzednie żądanie i czyści poprzednie wyniki. Timeout: 90 s (uwzględnia wybudzanie darmowego serwera Render).
 Wyświetlany czas dotyczy całego żądania HTTP, nie jest benchmarkiem języka.
 Ikona pogody jest dekoracyjna; aplikacja nie pobiera opisu zachmurzenia.
 
@@ -43,3 +43,16 @@ Backendy wymagają osobnego hostingu HTTP (Dockerfile w każdym repozytorium).
 ```
 
 To przykładowe dane. Rust zwraca identyczną strukturę z `"backend":"rust"`.
+
+## Wdrożenie backendów na Render
+
+Plik `render.yaml` w tym repozytorium opisuje dwa niezależne serwisy Docker:
+Go i Rust, plan Free, region Frankfurt, health check `/health`.
+Połącz Render z GitHubem i nadaj mu dostęp do obu prywatnych repozytoriów backendów.
+Utwórz Blueprint z tego repozytorium. Przed zatwierdzeniem sprawdź plan Free dla obu usług.
+
+Po udanym wdrożeniu odczytaj rzeczywiste publiczne adresy usług w Render.
+Ustaw je na Vercelu jako `VITE_GO_API_URL` i `VITE_RUST_API_URL`, a następnie wykonaj redeploy.
+Sprawdź oba endpointy `/api/weather` i przełącznik we frontendzie.
+Darmowe godziny są współdzielone; nie konfiguruj sztucznego podtrzymywania aktywności.
+Backend .NET dodamy jako trzeci serwis po utworzeniu jego repozytorium.
