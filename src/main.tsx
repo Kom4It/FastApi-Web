@@ -20,7 +20,7 @@ function App() {
     let timedOut = false;
     setResult(null); setError(''); setLoading(true);
     const start = performance.now();
-    const timer = window.setTimeout(() => { timedOut = true; controller.abort(); }, 15000);
+    const timer = window.setTimeout(() => { timedOut = true; controller.abort(); }, 90000);
     getWeather(urls[backend], backend, controller.signal)
       .then(data => { if (active) setResult({ data, elapsed: Math.round(performance.now() - start) }); })
       .catch(reason => { if (active) setError(timedOut ? 'Przekroczono czas oczekiwania. Spróbuj ponownie.' : reason instanceof TypeError ? 'Nie można połączyć się z backendem. Sprawdź połączenie i konfigurację CORS.' : reason.message || 'Nie udało się pobrać pogody.'); })
@@ -42,7 +42,7 @@ function App() {
       {error && <div className="error" role="alert">{error}</div>}
     </section>
     <section className="backend-panel" aria-label="Wybór backendu"><div><h3>Jeden widok. Dwa backendy.</h3><p>Wybierz serwis, który pobierze pogodę.</p></div><div className="switch" role="group" aria-label="Backend">{(['go', 'rust'] as const).map(value => <button key={value} aria-pressed={backend === value} onClick={() => setBackend(value)}>{value === 'go' ? 'Go' : 'Rust'}</button>)}</div></section>
-    <div className="request-info" aria-live="polite"><span>Wybrany backend: <b>{backend === 'go' ? 'Go' : 'Rust'}</b></span><span>{result ? 'Czas żądania: ' + result.elapsed + ' ms' : loading ? 'Łączenie z serwisem…' : 'Brak danych'}</span></div>
+    <div className="request-info" aria-live="polite"><span>Wybrany backend: <b>{backend === 'go' ? 'Go' : 'Rust'}</b></span><span>{result ? 'Czas żądania: ' + result.elapsed + ' ms' : loading ? 'Łączenie… Wybudzenie serwera może potrwać około minuty.' : 'Brak danych'}</span></div>
     <footer><a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Dane: Open-Meteo ↗</a><span>Dane modelowe · strefa Europe/Warsaw</span></footer>
   </main>;
 }
