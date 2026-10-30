@@ -1,4 +1,4 @@
-export type Backend = 'go' | 'rust';
+export type Backend = 'go' | 'rust' | 'dotnet';
 export type Weather = {
   backend: Backend; city: string; timezone: string;
   current: { time: string; temperature_2m: number; apparent_temperature: number | null; relative_humidity_2m: number; wind_speed_10m: number };

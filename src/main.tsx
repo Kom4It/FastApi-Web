@@ -5,8 +5,10 @@ import './style.css';
 
 const urls: Record<Backend, string> = {
   go: import.meta.env.VITE_GO_API_URL || (import.meta.env.DEV ? 'http://localhost:8080' : ''),
+  dotnet: import.meta.env.VITE_DOTNET_API_URL || (import.meta.env.DEV ? 'http://localhost:8082' : ''),
   rust: import.meta.env.VITE_RUST_API_URL || (import.meta.env.DEV ? 'http://localhost:8081' : ''),
 };
+const labels: Record<Backend, string> = { go: 'Go', rust: 'Rust', dotnet: '.NET' };
 const number = (n: number) => n.toLocaleString('pl-PL', { maximumFractionDigits: 1 });
 function App() {
   const [backend, setBackend] = useState<Backend>('go');
@@ -41,8 +43,8 @@ function App() {
       <div className="card-bottom"><span>{current ? 'Czas danych: ' + formatObservationTime(current.time) + ' · Warszawa' : 'Oczekiwanie na dane pogodowe'}</span><button className="refresh" disabled={loading} onClick={() => setRefresh(n => n + 1)}>{loading ? 'Pobieranie…' : '↻ Odśwież'}</button></div>
       {error && <div className="error" role="alert">{error}</div>}
     </section>
-    <section className="backend-panel" aria-label="Wybór backendu"><div><h3>Jeden widok. Dwa backendy.</h3><p>Wybierz serwis, który pobierze pogodę.</p></div><div className="switch" role="group" aria-label="Backend">{(['go', 'rust'] as const).map(value => <button key={value} aria-pressed={backend === value} onClick={() => setBackend(value)}>{value === 'go' ? 'Go' : 'Rust'}</button>)}</div></section>
-    <div className="request-info" aria-live="polite"><span>Wybrany backend: <b>{backend === 'go' ? 'Go' : 'Rust'}</b></span><span>{result ? 'Czas żądania: ' + result.elapsed + ' ms' : loading ? 'Łączenie… Wybudzenie serwera może potrwać około minuty.' : 'Brak danych'}</span></div>
+    <section className="backend-panel" aria-label="Wybór backendu"><div><h3>Jeden widok. Trzy backendy.</h3><p>Wybierz serwis, który pobierze pogodę.</p></div><div className="switch" role="group" aria-label="Backend">{(['go', 'rust', 'dotnet'] as const).map(value => <button key={value} aria-pressed={backend === value} onClick={() => setBackend(value)}>{labels[value]}</button>)}</div></section>
+    <div className="request-info" aria-live="polite"><span>Wybrany backend: <b>{labels[backend]}</b></span><span>{result ? 'Czas żądania: ' + result.elapsed + ' ms' : loading ? 'Łączenie… Wybudzenie serwera może potrwać około minuty.' : 'Brak danych'}</span></div>
     <footer><a href="https://danepubliczne.imgw.pl/" target="_blank" rel="noreferrer">Dane: IMGW-PIB ↗</a><span>Pomiary stacji Kraków · strefa Europe/Warsaw</span></footer><p className="source-note">Źródłem pochodzenia danych jest Instytut Meteorologii i Gospodarki Wodnej – Państwowy Instytut Badawczy. Dane Instytutu Meteorologii i Gospodarki Wodnej – Państwowego Instytutu Badawczego zostały przetworzone (jednostka prędkości wiatru i format czasu).</p>
   </main>;
 }

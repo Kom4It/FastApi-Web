@@ -38,3 +38,14 @@ it('converts UTC observations to Warsaw winter and summer time', () => {
  expect(formatObservationTime('2026-01-01T06:00:00Z')).toContain('07:00');
  expect(formatObservationTime('2026-07-01T06:00:00Z')).toContain('08:00');
 });
+
+it('accepts the .NET contract and requests the .NET endpoint', async () => {
+ const dotnet = { ...data, backend: 'dotnet', current: { ...data.current, apparent_temperature: null } };
+ expect(parseWeather(dotnet, 'dotnet')).toEqual(dotnet);
+ expect(() => parseWeather(dotnet, 'go')).toThrow();
+ const fetcher = vi.fn().mockResolvedValue({ ok: true, json: async () => dotnet });
+ vi.stubGlobal('fetch', fetcher);
+ const signal = new AbortController().signal;
+ expect(await getWeather('https://dotnet.example/', 'dotnet', signal)).toEqual(dotnet);
+ expect(fetcher).toHaveBeenCalledWith('https://dotnet.example/api/weather', { signal, cache: 'no-store' });
+});
