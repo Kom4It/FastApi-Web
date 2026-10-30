@@ -34,12 +34,12 @@ Zmienne są wbudowywane w frontend; po zmianie wykonaj redeploy. Nie umieszczaj 
 Na obu backendach ustaw `ALLOWED_ORIGINS` na dokładny origin Vercel, bez końcowego ukośnika.
 Bez adresu backendu produkcyjny frontend pokazuje brak konfiguracji; nigdy nie udaje prawdziwej pogody.
 Backendy wymagają osobnego hostingu HTTP (Dockerfile w każdym repozytorium).
-Źródło danych: [Open-Meteo](https://open-meteo.com/), bezpłatne API do użytku niekomercyjnego.
+Źródło danych: [IMGW-PIB](https://danepubliczne.imgw.pl/apiinfo), stacja Kraków (12566), bez klucza API. Backend przelicza wiatr z m/s na km/h, frontend wyświetla czas pomiaru UTC w strefie Europe/Warsaw. Temperatura odczuwalna jest niedostępna (`null`). Cache backendów: 10 minut.
 
 ## Kontrakt
 
 ```json
-{"backend":"go","city":"Kraków","timezone":"Europe/Warsaw","current":{"time":"2026-10-29T14:15","temperature_2m":10.5,"apparent_temperature":9.2,"relative_humidity_2m":75,"wind_speed_10m":8}}
+{"backend":"go","city":"Kraków","timezone":"Europe/Warsaw","current":{"time":"2026-10-29T14:00:00Z","temperature_2m":10.5,"apparent_temperature":null,"relative_humidity_2m":75,"wind_speed_10m":8}}
 ```
 
 To przykładowe dane. Rust zwraca identyczną strukturę z `"backend":"rust"`.

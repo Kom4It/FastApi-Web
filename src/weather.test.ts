@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { getWeather, parseWeather } from './weather';
+import { getWeather, parseWeather, formatObservationTime } from './weather';
 const data = { backend: 'go', city: 'Kraków', timezone: 'Europe/Warsaw', current: { time: '2026-10-29T14:15', temperature_2m: 0, apparent_temperature: -2, relative_humidity_2m: 80, wind_speed_10m: 0 } };
 afterEach(() => vi.unstubAllGlobals());
 describe('weather contract', () => {
@@ -22,4 +22,19 @@ describe('weather contract', () => {
     await expect(getWeather('', 'go', new AbortController().signal)).rejects.toThrow('podłączony');
     expect(fetcher).not.toHaveBeenCalled();
   });
+});
+
+it('accepts IMGW without apparent temperature', () => {
+ const imgw = { ...data, current: { ...data.current, time: '2026-07-01T06:00:00Z', apparent_temperature: null } };
+ expect(parseWeather(imgw, 'go')).toEqual(imgw);
+});
+it('rejects non-finite and missing apparent temperature', () => {
+ for (const apparent_temperature of [undefined, NaN, Infinity, '0']) {
+  expect(() => parseWeather({ ...data, current: { ...data.current, apparent_temperature } }, 'go')).toThrow();
+ }
+});
+
+it('converts UTC observations to Warsaw winter and summer time', () => {
+ expect(formatObservationTime('2026-01-01T06:00:00Z')).toContain('07:00');
+ expect(formatObservationTime('2026-07-01T06:00:00Z')).toContain('08:00');
 });

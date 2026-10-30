@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { getWeather, type Backend, type Weather } from './weather';
+import { getWeather, formatObservationTime, type Backend, type Weather } from './weather';
 import './style.css';
 
 const urls: Record<Backend, string> = {
@@ -37,13 +37,13 @@ function App() {
         <div className="temperature">{current ? number(current.temperature_2m) : '—'}<span>°C</span></div>
         <svg className="weather-art" viewBox="0 0 180 130" aria-hidden="true"><circle cx="112" cy="46" r="29" fill="#f4c66e"/><g stroke="#f4c66e" strokeWidth="3" strokeLinecap="round"><path d="M112 4v-3M112 88v6M70 46h-6M154 46h7M82 16l-5-5M143 76l5 5M143 16l5-5"/></g><path d="M41 109a24 24 0 1 1 7-47 34 34 0 0 1 65-8 27 27 0 1 1 16 55Z" fill="#dcecf1"/><path d="M41 109h88" stroke="#b9d7e2" strokeWidth="3" strokeLinecap="round"/></svg>
       </div>
-      <div className="metrics"><div><span>Odczuwalna</span><strong>{current ? number(current.apparent_temperature) + ' °C' : '—'}</strong></div><div><span>Wilgotność</span><strong>{current ? number(current.relative_humidity_2m) + ' %' : '—'}</strong></div><div><span>Wiatr</span><strong>{current ? number(current.wind_speed_10m) + ' km/h' : '—'}</strong></div></div>
-      <div className="card-bottom"><span>{current ? 'Czas danych: ' + current.time.replace('T', ', ') + ' · Warszawa' : 'Oczekiwanie na dane pogodowe'}</span><button className="refresh" disabled={loading} onClick={() => setRefresh(n => n + 1)}>{loading ? 'Pobieranie…' : '↻ Odśwież'}</button></div>
+      <div className="metrics"><div><span>Odczuwalna</span><strong>{current?.apparent_temperature != null ? number(current.apparent_temperature) + ' °C' : current ? 'Brak danych' : '—'}</strong></div><div><span>Wilgotność</span><strong>{current ? number(current.relative_humidity_2m) + ' %' : '—'}</strong></div><div><span>Wiatr</span><strong>{current ? number(current.wind_speed_10m) + ' km/h' : '—'}</strong></div></div>
+      <div className="card-bottom"><span>{current ? 'Czas danych: ' + formatObservationTime(current.time) + ' · Warszawa' : 'Oczekiwanie na dane pogodowe'}</span><button className="refresh" disabled={loading} onClick={() => setRefresh(n => n + 1)}>{loading ? 'Pobieranie…' : '↻ Odśwież'}</button></div>
       {error && <div className="error" role="alert">{error}</div>}
     </section>
     <section className="backend-panel" aria-label="Wybór backendu"><div><h3>Jeden widok. Dwa backendy.</h3><p>Wybierz serwis, który pobierze pogodę.</p></div><div className="switch" role="group" aria-label="Backend">{(['go', 'rust'] as const).map(value => <button key={value} aria-pressed={backend === value} onClick={() => setBackend(value)}>{value === 'go' ? 'Go' : 'Rust'}</button>)}</div></section>
     <div className="request-info" aria-live="polite"><span>Wybrany backend: <b>{backend === 'go' ? 'Go' : 'Rust'}</b></span><span>{result ? 'Czas żądania: ' + result.elapsed + ' ms' : loading ? 'Łączenie… Wybudzenie serwera może potrwać około minuty.' : 'Brak danych'}</span></div>
-    <footer><a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Dane: Open-Meteo ↗</a><span>Dane modelowe · strefa Europe/Warsaw</span></footer>
+    <footer><a href="https://danepubliczne.imgw.pl/" target="_blank" rel="noreferrer">Dane: IMGW-PIB ↗</a><span>Pomiary stacji Kraków · strefa Europe/Warsaw</span></footer><p className="source-note">Źródłem pochodzenia danych jest Instytut Meteorologii i Gospodarki Wodnej – Państwowy Instytut Badawczy. Dane Instytutu Meteorologii i Gospodarki Wodnej – Państwowego Instytutu Badawczego zostały przetworzone (jednostka prędkości wiatru i format czasu).</p>
   </main>;
 }
 createRoot(document.getElementById('root')!).render(<App />);

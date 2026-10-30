@@ -1,14 +1,15 @@
 export type Backend = 'go' | 'rust';
 export type Weather = {
   backend: Backend; city: string; timezone: string;
-  current: { time: string; temperature_2m: number; apparent_temperature: number; relative_humidity_2m: number; wind_speed_10m: number };
+  current: { time: string; temperature_2m: number; apparent_temperature: number | null; relative_humidity_2m: number; wind_speed_10m: number };
 };
 export function parseWeather(value: unknown, backend: Backend): Weather {
   const data = value as Partial<Weather> | null;
   const current = data?.current;
   if (!data || data.backend !== backend || data.city !== 'Kraków' || data.timezone !== 'Europe/Warsaw'
     || !current || typeof current.time !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(current.time)
-    || ![current.temperature_2m, current.apparent_temperature, current.relative_humidity_2m, current.wind_speed_10m].every(v => typeof v === 'number' && Number.isFinite(v))) {
+    || !(current.apparent_temperature === null || (typeof current.apparent_temperature === 'number' && Number.isFinite(current.apparent_temperature)))
+    || ![current.temperature_2m, current.relative_humidity_2m, current.wind_speed_10m].every(v => typeof v === 'number' && Number.isFinite(v))) {
     throw new Error('Backend zwrócił nieprawidłowe dane pogodowe.');
   }
   return data as Weather;
@@ -18,4 +19,10 @@ export async function getWeather(base: string, backend: Backend, signal: AbortSi
   const response = await fetch(base.replace(/\/$/, '') + '/api/weather', { signal, cache: 'no-store' });
   if (!response.ok) throw new Error('Serwis pogodowy jest niedostępny (HTTP ' + response.status + '). Spróbuj ponownie.');
   return parseWeather(await response.json(), backend);
+}
+
+export function formatObservationTime(time: string): string {
+  // Explicit UTC/offset timestamps from IMGW; retain compatibility during rollout.
+  if (!/(Z|[+-]\d{2}:\d{2})$/.test(time)) return time.replace('T', ', ');
+  return new Intl.DateTimeFormat('pl-PL', { timeZone: 'Europe/Warsaw', dateStyle: 'short', timeStyle: 'short' }).format(new Date(time));
 }
